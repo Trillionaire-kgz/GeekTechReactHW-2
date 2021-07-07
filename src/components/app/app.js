@@ -3,10 +3,14 @@ import AppHeader from '../app-header';
 import SearchPanel from '../search-panel';
 import TodoList from '../todo-list';
 import ItemStatusFilter from '../item-status-filter';
+import AddTodo from '../todo-list-add';
 
 import './app.css';
 
 class App extends React.Component {
+
+  for_new_todo = 200
+
   state = {
     todoData: [
       {label: 'Drink coffee', important: false, id: 1, done: false},
@@ -15,10 +19,6 @@ class App extends React.Component {
     ],
     search: '',
     status: 'All'
-  }
-
-  lolo = () => {
-    console.log('hi')
   }
 
   onToggleImportant = (id) => {
@@ -105,14 +105,42 @@ class App extends React.Component {
     }
   }
 
+  onAddTodo = (label) => {
+    const new_todo = {
+      label: label,
+      important: false,
+      done: false,
+      id: ++this.for_new_todo,
+    }
+
+    this.setState((old_state) => {
+      return {
+        todoData:[...old_state.todoData, new_todo]
+      }
+      })
+  }
+
+  activeTodos = (todoData) => {
+    const active = todoData.filter(todo => !todo.done)
+    return active.length
+  }
+
+  doneTodos = (todoData) => {
+    const done = todoData.filter(todo => todo.done)
+    return done.length
+  }
+
   render() {
 
-    const filtered_todos = this.onFilterTodos(this.state.todoData, this.state.status)
-    const new_elements = this.onSearchTodos(filtered_todos, this.state.search)
+    const filtered_todos = this.onFilterTodos(this.state.todoData, this.state.status);
+    const new_elements = this.onSearchTodos(filtered_todos, this.state.search);
+    const active = this.activeTodos(this.state.todoData);
+    const done = this.doneTodos(this.state.todoData);
+
 
     return (
       <div className="todo-app">
-        <AppHeader toDo={1} done={3}/>
+        <AppHeader toDo={active} done={done}/>
         <div className="top-panel d-flex">
           <SearchPanel onSearch={this.onSearch}/>
           <ItemStatusFilter onChangeStatus={this.onChangeStatus}/>
@@ -120,6 +148,7 @@ class App extends React.Component {
 
         <TodoList onToggleDone={this.onToggleDone} onDelete={this.onDelete} onToggleImportant={this.onToggleImportant}
                   todos={new_elements}/>
+        <AddTodo onAddTodo={this.onAddTodo}/>
       </div>
     );
   }
